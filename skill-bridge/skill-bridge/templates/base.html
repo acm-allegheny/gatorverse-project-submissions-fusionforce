@@ -48,10 +48,15 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bell me-1"></i>
-                            <span class="badge bg-danger">0</span>
+                            {% set unread_count = current_user.received_messages|selectattr('is_read', 'equalto', false)|list|length %}
+                            <span class="badge bg-danger">{{ unread_count if unread_count > 0 else 0 }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">No notifications</a></li>
+                            {% if unread_count > 0 %}
+                                <li><a class="dropdown-item" href="{{ url_for('messages') }}">{{ unread_count }} unread message{% if unread_count > 1 %}s{% endif %}</a></li>
+                            {% else %}
+                                <li><a class="dropdown-item" href="#">No notifications</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                     <li class="nav-item">

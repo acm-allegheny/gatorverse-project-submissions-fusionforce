@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, SubmitField, BooleanField, SelectMultipleField, widgets
+from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 import os
@@ -16,6 +16,12 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Custom widget for multiple checkboxes
+class MultiCheckboxField(SelectMultipleField):
+    """Custom field for multiple checkbox inputs"""
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 # Registration Form
 class RegistrationForm(FlaskForm):
@@ -33,7 +39,26 @@ class RegistrationForm(FlaskForm):
         ('Economics', 'Economics'),
         ('Other', 'Other')
     ], validators=[DataRequired()])
-    skills = StringField('Skills (comma-separated)', validators=[DataRequired()])
+    
+    # Multiple skills selection with checkboxes
+    skills = MultiCheckboxField('Skills', choices=[
+        ('Python', 'Python'),
+        ('JavaScript', 'JavaScript'),
+        ('React', 'React'),
+        ('UI Design', 'UI Design'),
+        ('Data Analysis', 'Data Analysis'),
+        ('Machine Learning', 'Machine Learning'),
+        ('Graphic Design', 'Graphic Design'),
+        ('Digital Marketing', 'Digital Marketing'),
+        ('Project Management', 'Project Management'),
+        ('Research', 'Research'),
+        ('Writing', 'Writing'),
+        ('Mobile Development', 'Mobile Development')
+    ])
+    
+    # Additional skills field for custom input
+    other_skills = StringField('Other Skills (comma-separated)', validators=[Optional()])
+    
     bio = TextAreaField('Bio', validators=[Length(max=500)])
     submit = SubmitField('Register')
 
@@ -77,7 +102,7 @@ class User(UserMixin, db.Model):
 
     def update_experience_points(self):
         completed_projects = Project.query.filter_by(creator_id=self.id, status='completed').count()
-        positive_reviews = Review.query.filter_by(reviewee_id=self.id, rating__gte=4).count()
+        positive_reviews = Review.query.filter(Review.reviewee_id == self.id, Review.rating >= 4).count()
         self.experience_points = (completed_projects * 20) + (positive_reviews * 5)
         db.session.commit()
 
@@ -310,12 +335,20 @@ def register():
             flash('That username is already taken. Please choose a different one.', 'danger')
             return render_template('register.html', title='Register', form=form)
         
+        # Combine selected skills and other skills
+        selected_skills = form.skills.data
+        if form.other_skills.data:
+            other_skills = [skill.strip() for skill in form.other_skills.data.split(',') if skill.strip()]
+            all_skills = selected_skills + other_skills
+        else:
+            all_skills = selected_skills
+            
         # Create new user
         user = User(
             username=form.username.data,
             email=form.email.data,
             major=form.major.data,
-            skills=form.skills.data,
+            skills=', '.join(all_skills),
             bio=form.bio.data,
             profile_image='https://i.pravatar.cc/150?img=' + str(User.query.count() % 70)
         )
