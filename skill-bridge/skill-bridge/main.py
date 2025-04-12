@@ -298,19 +298,38 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Check if a user with this email already exists
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            flash('A user with that email already exists. Please use a different email or log in.', 'danger')
+            return render_template('register.html', title='Register', form=form)
+        
+        # Check if username is taken
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
+            flash('That username is already taken. Please choose a different one.', 'danger')
+            return render_template('register.html', title='Register', form=form)
+        
+        # Create new user
         user = User(
             username=form.username.data,
             email=form.email.data,
             major=form.major.data,
             skills=form.skills.data,
             bio=form.bio.data,
-            profile_image=None
+            profile_image='https://i.pravatar.cc/150?img=' + str(User.query.count() % 70)
         )
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('login'))
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred during registration. Please try again.', 'danger')
+            print(f"Registration error: {str(e)}")
     
     return render_template('register.html', title='Register', form=form)
 
@@ -877,155 +896,182 @@ def get_recommendations():
                          matching_users=matching_users[:3])
 
 def create_sample_data():
-    # Create sample users
-    users = [
-        User(
-            username='alice_dev',
-            email='alice@example.com',
-            major='Computer Science',
-            skills='Python, JavaScript, React, UI Design',
-            bio='Passionate about web development and UI/UX design. Looking to collaborate on innovative projects.',
-            profile_image='https://i.pravatar.cc/150?img=1'
-        ),
-        User(
-            username='bob_artist',
-            email='bob@example.com',
-            major='Art',
-            skills='Digital Art, UI Design, Photoshop, Illustration',
-            bio='Digital artist specializing in UI/UX design and illustrations. Open to creative collaborations.',
-            profile_image='https://i.pravatar.cc/150?img=2'
-        ),
-        User(
-            username='charlie_biz',
-            email='charlie@example.com',
-            major='Business',
-            skills='Marketing, Project Management, Data Analysis, Leadership',
-            bio='Business student with a focus on digital marketing and project management.',
-            profile_image='https://i.pravatar.cc/150?img=3'
-        ),
-        User(
-            username='diana_psych',
-            email='diana@example.com',
-            major='Psychology',
-            skills='Research, Data Analysis, UX Research, Human Behavior',
-            bio='Psychology major interested in UX research and human-computer interaction.',
-            profile_image='https://i.pravatar.cc/150?img=4'
-        ),
-        User(
-            username='ethan_bio',
-            email='ethan@example.com',
-            major='Biology',
-            skills='Data Analysis, Research, Python, Scientific Writing',
-            bio='Biology student with programming skills, looking to apply data analysis to biological research.',
-            profile_image='https://i.pravatar.cc/150?img=5'
-        )
-    ]
+    """Create sample data only if it doesn't already exist"""
+    try:
+        # Check if users already exist
+        if User.query.count() > 0:
+            print("Sample data already exists, skipping creation.")
+            return "Sample data already exists"
+            
+        # Create sample users
+        users = [
+            User(
+                username='alice_dev',
+                email='alice@example.com',
+                major='Computer Science',
+                skills='Python, JavaScript, React, UI Design',
+                bio='Passionate about web development and UI/UX design. Looking to collaborate on innovative projects.',
+                profile_image='https://i.pravatar.cc/150?img=1'
+            ),
+            User(
+                username='bob_artist',
+                email='bob@example.com',
+                major='Art',
+                skills='Digital Art, UI Design, Photoshop, Illustration',
+                bio='Digital artist specializing in UI/UX design and illustrations. Open to creative collaborations.',
+                profile_image='https://i.pravatar.cc/150?img=2'
+            ),
+            User(
+                username='charlie_biz',
+                email='charlie@example.com',
+                major='Business',
+                skills='Marketing, Project Management, Data Analysis, Leadership',
+                bio='Business student with a focus on digital marketing and project management.',
+                profile_image='https://i.pravatar.cc/150?img=3'
+            ),
+            User(
+                username='diana_psych',
+                email='diana@example.com',
+                major='Psychology',
+                skills='Research, Data Analysis, UX Research, Human Behavior',
+                bio='Psychology major interested in UX research and human-computer interaction.',
+                profile_image='https://i.pravatar.cc/150?img=4'
+            ),
+            User(
+                username='ethan_bio',
+                email='ethan@example.com',
+                major='Biology',
+                skills='Data Analysis, Research, Python, Scientific Writing',
+                bio='Biology student with programming skills, looking to apply data analysis to biological research.',
+                profile_image='https://i.pravatar.cc/150?img=5'
+            )
+        ]
 
-    # Add users to database
-    for user in users:
-        user.set_password('password123')  # Set a default password for all users
-        db.session.add(user)
-    db.session.commit()
+        # Add users to database
+        for user in users:
+            user.set_password('password123')  # Set a default password for all users
+            db.session.add(user)
+        db.session.commit()
+        
+        # Create sample projects
+        projects = [
+            Project(
+                title='Eco-Friendly Shopping App',
+                description='Develop a mobile app that helps users find and purchase eco-friendly products. Features include product scanning, carbon footprint tracking, and sustainable alternatives suggestions.',
+                required_skills='UI Design, React Native, Python, Data Analysis',
+                tags='Mobile, Sustainability, E-commerce',
+                creator_id=users[0].id
+            ),
+            Project(
+                title='Mental Health Chatbot',
+                description='Create an AI-powered chatbot that provides mental health support and resources. The bot should be able to detect emotional states and suggest appropriate coping mechanisms.',
+                required_skills='Python, Natural Language Processing, Psychology, UX Design',
+                tags='AI, Healthcare, Mental Health',
+                creator_id=users[3].id
+            ),
+            Project(
+                title='Virtual Art Gallery',
+                description='Build a web platform for artists to showcase their work in a virtual 3D gallery space. Users should be able to navigate through different exhibition rooms and interact with artwork.',
+                required_skills='3D Modeling, WebGL, UI Design, Digital Art',
+                tags='3D, Art, Web Development',
+                creator_id=users[1].id
+            ),
+            Project(
+                title='Campus Food Waste Tracker',
+                description='Develop a system to track and reduce food waste in campus dining halls. Includes data collection, analysis, and visualization of waste patterns.',
+                required_skills='Data Analysis, Python, UI Design, Environmental Science',
+                tags='Sustainability, Data Visualization, Campus',
+                creator_id=users[4].id
+            ),
+            Project(
+                title='Student Budget Planner',
+                description='Create a mobile app that helps students manage their finances, track expenses, and set savings goals. Includes features for splitting bills and finding student discounts.',
+                required_skills='Mobile Development, UI Design, Data Analysis, Business',
+                tags='Finance, Mobile, Education',
+                creator_id=users[2].id
+            )
+        ]
 
-    # Create sample projects
-    projects = [
-        Project(
-            title='Eco-Friendly Shopping App',
-            description='Develop a mobile app that helps users find and purchase eco-friendly products. Features include product scanning, carbon footprint tracking, and sustainable alternatives suggestions.',
-            required_skills='UI Design, React Native, Python, Data Analysis',
-            tags='Mobile, Sustainability, E-commerce',
-            creator_id=users[0].id
-        ),
-        Project(
-            title='Mental Health Chatbot',
-            description='Create an AI-powered chatbot that provides mental health support and resources. The bot should be able to detect emotional states and suggest appropriate coping mechanisms.',
-            required_skills='Python, Natural Language Processing, Psychology, UX Design',
-            tags='AI, Healthcare, Mental Health',
-            creator_id=users[3].id
-        ),
-        Project(
-            title='Virtual Art Gallery',
-            description='Build a web platform for artists to showcase their work in a virtual 3D gallery space. Users should be able to navigate through different exhibition rooms and interact with artwork.',
-            required_skills='3D Modeling, WebGL, UI Design, Digital Art',
-            tags='3D, Art, Web Development',
-            creator_id=users[1].id
-        ),
-        Project(
-            title='Campus Food Waste Tracker',
-            description='Develop a system to track and reduce food waste in campus dining halls. Includes data collection, analysis, and visualization of waste patterns.',
-            required_skills='Data Analysis, Python, UI Design, Environmental Science',
-            tags='Sustainability, Data Visualization, Campus',
-            creator_id=users[4].id
-        ),
-        Project(
-            title='Student Budget Planner',
-            description='Create a mobile app that helps students manage their finances, track expenses, and set savings goals. Includes features for splitting bills and finding student discounts.',
-            required_skills='Mobile Development, UI Design, Data Analysis, Business',
-            tags='Finance, Mobile, Education',
-            creator_id=users[2].id
-        )
-    ]
+        # Add projects to database
+        for project in projects:
+            db.session.add(project)
+        db.session.commit()
 
-    # Add projects to database
-    for project in projects:
-        db.session.add(project)
-    db.session.commit()
+        # Create sample academic projects
+        academic_projects = [
+            AcademicProject(
+                title='Machine Learning for Climate Prediction',
+                description='Research project to develop machine learning models for predicting climate patterns based on historical data.',
+                project_type='comps',
+                department='Computer Science',
+                advisor='Dr. Smith',
+                deadline=datetime(2023, 12, 15).date(),
+                requirements='Python, Machine Learning, Data Analysis',
+                max_collaborators=4,
+                tags='AI, Climate Science, Research',
+                user_id=users[0].id
+            ),
+            AcademicProject(
+                title='Digital Art Exhibition',
+                description='Create a digital art exhibition for the university art gallery, exploring the intersection of technology and traditional art forms.',
+                project_type='gateway',
+                department='Art',
+                advisor='Prof. Johnson',
+                deadline=datetime(2023, 11, 30).date(),
+                requirements='Digital Art, 3D Modeling, Exhibition Design',
+                max_collaborators=3,
+                tags='Art, Exhibition, Digital',
+                user_id=users[1].id
+            )
+        ]
 
-    # Create sample academic projects
-    academic_projects = [
-        AcademicProject(
-            title='Machine Learning for Climate Prediction',
-            description='Research project to develop machine learning models for predicting climate patterns based on historical data.',
-            project_type='comps',
-            department='Computer Science',
-            advisor='Dr. Smith',
-            deadline=datetime(2023, 12, 15).date(),
-            requirements='Python, Machine Learning, Data Analysis',
-            max_collaborators=4,
-            tags='AI, Climate Science, Research',
-            user_id=users[0].id
-        ),
-        AcademicProject(
-            title='Digital Art Exhibition',
-            description='Create a digital art exhibition for the university art gallery, exploring the intersection of technology and traditional art forms.',
-            project_type='gateway',
-            department='Art',
-            advisor='Prof. Johnson',
-            deadline=datetime(2023, 11, 30).date(),
-            requirements='Digital Art, 3D Modeling, Exhibition Design',
-            max_collaborators=3,
-            tags='Art, Exhibition, Digital',
-            user_id=users[1].id
-        )
-    ]
+        # Add academic projects to database
+        for project in academic_projects:
+            db.session.add(project)
+        db.session.commit()
 
-    # Add academic projects to database
-    for project in academic_projects:
-        db.session.add(project)
-    db.session.commit()
-
-    return 'Sample data created successfully!'
+        return 'Sample data created successfully!'
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating sample data: {str(e)}")
+        return f"Error creating sample data: {str(e)}"
 
 def init_db():
     """Initialize the database with the correct schema"""
-    # Drop all existing tables
-    db.drop_all()
-    # Create all tables with the current schema
-    db.create_all()
-    # Create sample data
-    create_sample_data()
-    return "Database initialized successfully!"
+    try:
+        # Create tables if they don't exist
+        db.create_all()
+        
+        # Check if we need to add sample data
+        if User.query.count() == 0:
+            print("Creating sample data...")
+            return create_sample_data()
+        else:
+            print("Database already contains data, skipping sample data creation.")
+            return "Database already initialized with existing data!"
+    except Exception as e:
+        print(f"Error initializing database: {str(e)}")
+        return f"Error initializing database: {str(e)}"
 
 @app.route('/init-db')
 def init_database():
     """Route to initialize the database"""
-    try:
+    with app.app_context():
         return init_db()
+
+@app.route('/reset-db')
+def reset_database():
+    """Route to completely reset the database (warning: deletes all user data)"""
+    try:
+        with app.app_context():
+            db.drop_all()
+            db.create_all()
+            return create_sample_data()
     except Exception as e:
-        return f"Error initializing database: {str(e)}"
+        return f"Error resetting database: {str(e)}"
 
 if __name__ == '__main__':
     with app.app_context():
-        # Always initialize the database to ensure correct schema
+        # Initialize the database but preserve existing users
         init_db()
     app.run(debug=True, port=5001) 
