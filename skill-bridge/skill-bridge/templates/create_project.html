@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Project - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Create New Project</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_project') }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Project Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                            <div class="form-text">Describe your project in detail. What are your goals? What are you trying to build?</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="required_skills" class="form-label">Required Skills</label>
+                            <input type="text" class="form-control" id="required_skills" name="required_skills" required>
+                            <div class="form-text">List skills separated by commas (e.g., Python, JavaScript, UI Design)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags">
+                            <div class="form-text">Categories or keywords that describe your project, separated by commas (e.g., Mobile, Web, AI)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_collaborators" class="form-label">Maximum Collaborators</label>
+                            <input type="number" class="form-control" id="max_collaborators" name="max_collaborators" value="5" min="1" max="20">
+                            <div class="form-text">Maximum number of people who can join your project</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Create Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

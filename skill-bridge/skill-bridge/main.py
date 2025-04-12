@@ -400,7 +400,7 @@ def send_message(receiver_id):
         message = Message(
             sender_id=current_user.id,
             receiver_id=receiver_id,
-            content=request.form['content']
+            content=request.form['message']
         )
         db.session.add(message)
         db.session.commit()
@@ -408,6 +408,68 @@ def send_message(receiver_id):
         return redirect(url_for('messages'))
     
     return render_template('send_message.html', receiver=receiver)
+
+@app.route('/send_new_message', methods=['GET', 'POST'])
+@login_required
+def send_new_message():
+    users = User.query.filter(User.id != current_user.id).all()
+    
+    if request.method == 'POST':
+        receiver_id = request.form.get('receiver_id')
+        content = request.form.get('message')
+        
+        message = Message(
+            sender_id=current_user.id,
+            receiver_id=receiver_id,
+            content=content
+        )
+        db.session.add(message)
+        db.session.commit()
+        flash('Message sent successfully!', 'success')
+        return redirect(url_for('messages'))
+    
+    return render_template('send_message.html', users=users)
+
+@app.route('/user_messages/<int:user_id>', methods=['GET'])
+@login_required
+def user_messages(user_id):
+    other_user = User.query.get_or_404(user_id)
+    
+    # Get all messages between current user and other user
+    messages = Message.query.filter(
+        ((Message.sender_id == current_user.id) & (Message.receiver_id == user_id)) |
+        ((Message.sender_id == user_id) & (Message.receiver_id == current_user.id))
+    ).order_by(Message.created_at).all()
+    
+    # Mark unread messages as read
+    unread_messages = Message.query.filter_by(
+        sender_id=user_id,
+        receiver_id=current_user.id,
+        is_read=False
+    ).all()
+    
+    for message in unread_messages:
+        message.is_read = True
+    
+    db.session.commit()
+    
+    return render_template('user_messages.html', messages=messages, other_user=other_user)
+
+@app.route('/send_direct_message/<int:receiver_id>', methods=['POST'])
+@login_required
+def send_direct_message(receiver_id):
+    content = request.form.get('message')
+    
+    message = Message(
+        sender_id=current_user.id,
+        receiver_id=receiver_id,
+        content=content
+    )
+    
+    db.session.add(message)
+    db.session.commit()
+    
+    return redirect(url_for('user_messages', user_id=receiver_id))
 
 @app.route('/project/<int:project_id>/join', methods=['POST'])
 @login_required
