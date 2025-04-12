@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h4>Login</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {% if form.password.errors %}
+                                {{ form.password(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.password(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 form-check">
+                            {{ form.remember(class="form-check-input") }}
+                            {{ form.remember.label(class="form-check-label") }}
+                        </div>
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small>Don't have an account? <a href="{{ url_for('register') }}">Register now</a></small>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Sample Accounts</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">You can use any of these accounts to test the system:</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Developer</td>
+                                    <td>alice@example.com</td>
+                                    <td>password123</td>
+                                </tr>
+                                <tr>
+                                    <td>Artist</td>
+                                    <td>bob@example.com</td>
+                                    <td>password123</td>
+                                </tr>
+                                <tr>
+                                    <td>Business</td>
+                                    <td>charlie@example.com</td>
+                                    <td>password123</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <small class="text-muted">Or <a href="{{ url_for('register') }}">register</a> to create your own account!</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

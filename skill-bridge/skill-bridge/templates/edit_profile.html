@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2>Edit Profile</h2>
+                    <a href="{{ url_for('profile', username=current_user.username) }}" class="btn btn-outline-primary">View Profile</a>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('edit_profile') }}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="major" class="form-label">Major</label>
+                            <select class="form-select" id="major" name="major" required>
+                                <option value="">Select your major</option>
+                                <option value="Computer Science" {% if current_user.major == 'Computer Science' %}selected{% endif %}>Computer Science</option>
+                                <option value="Art" {% if current_user.major == 'Art' %}selected{% endif %}>Art</option>
+                                <option value="Business" {% if current_user.major == 'Business' %}selected{% endif %}>Business</option>
+                                <option value="Psychology" {% if current_user.major == 'Psychology' %}selected{% endif %}>Psychology</option>
+                                <option value="Biology" {% if current_user.major == 'Biology' %}selected{% endif %}>Biology</option>
+                                <option value="Economics" {% if current_user.major == 'Economics' %}selected{% endif %}>Economics</option>
+                                <option value="Other" {% if current_user.major == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="skills" class="form-label">Skills (comma-separated)</label>
+                            <input type="text" class="form-control" id="skills" name="skills" value="{{ current_user.skills }}" required>
+                            <div class="form-text">List your skills separated by commas (e.g., Python, JavaScript, UI Design)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="interests" class="form-label">Interests (comma-separated)</label>
+                            <input type="text" class="form-control" id="interests" name="interests" value="{{ current_user.interests }}">
+                            <div class="form-text">List your interests separated by commas (e.g., Machine Learning, Mobile Apps, Web Development)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="4">{{ current_user.bio }}</textarea>
+                            <div class="form-text">Tell others about yourself, your experience, and what you're looking for in collaborations.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="github" class="form-label">GitHub URL</label>
+                            <input type="url" class="form-control" id="github" name="github" value="{{ current_user.github }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="linkedin" class="form-label">LinkedIn URL</label>
+                            <input type="url" class="form-control" id="linkedin" name="linkedin" value="{{ current_user.linkedin }}">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

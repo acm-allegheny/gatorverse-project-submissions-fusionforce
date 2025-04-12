@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Collaborators - {{ project.title }} - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Collaborators for "{{ project.title }}"</h2>
+            <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-outline-primary btn-sm">Back to Project</a>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h5>Project Owner</h5>
+                <div class="d-flex align-items-center p-3 border rounded mb-3">
+                    <img src="{{ project.creator.profile_image }}" alt="{{ project.creator.username }}" class="rounded-circle me-3" style="width: 60px; height: 60px;">
+                    <div>
+                        <h5 class="mb-0">{{ project.creator.username }}</h5>
+                        <p class="mb-1 text-muted">{{ project.creator.major }}</p>
+                        <div class="d-flex flex-wrap">
+                            {% for skill in project.creator.skills.split(',') %}
+                                <span class="badge bg-info text-dark me-1 mb-1">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-2">
+                            <a href="{{ url_for('profile', username=project.creator.username) }}" class="btn btn-sm btn-outline-secondary">View Profile</a>
+                            {% if current_user.is_authenticated and current_user.id != project.creator.id %}
+                                <a href="{{ url_for('send_message', receiver_id=project.creator.id) }}" class="btn btn-sm btn-outline-primary">Message</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h5>Team Members ({{ collaborators|length }}/{{ project.max_collaborators }})</h5>
+                {% if collaborators %}
+                    {% for collaborator in collaborators %}
+                        <div class="d-flex align-items-center p-3 border rounded mb-3">
+                            <img src="{{ collaborator.profile_image }}" alt="{{ collaborator.username }}" class="rounded-circle me-3" style="width: 60px; height: 60px;">
+                            <div>
+                                <h5 class="mb-0">{{ collaborator.username }}</h5>
+                                <p class="mb-1 text-muted">{{ collaborator.major }}</p>
+                                <div class="d-flex flex-wrap">
+                                    {% for skill in collaborator.skills.split(',') %}
+                                        <span class="badge bg-info text-dark me-1 mb-1">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('profile', username=collaborator.username) }}" class="btn btn-sm btn-outline-secondary">View Profile</a>
+                                    {% if current_user.is_authenticated and current_user.id != collaborator.id %}
+                                        <a href="{{ url_for('send_message', receiver_id=collaborator.id) }}" class="btn btn-sm btn-outline-primary">Message</a>
+                                    {% endif %}
+                                    
+                                    {% if current_user.is_authenticated and current_user.id == project.creator.id %}
+                                        <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        No collaborators have joined this project yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Create an Account</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('register') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.username.label(class="form-label") }}
+                                {% if form.username.errors %}
+                                    {{ form.username(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.username(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.email(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.password.label(class="form-label") }}
+                                {% if form.password.errors %}
+                                    {{ form.password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.password(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                {% if form.confirm_password.errors %}
+                                    {{ form.confirm_password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.confirm_password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.confirm_password(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.major.label(class="form-label") }}
+                            {% if form.major.errors %}
+                                {{ form.major(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.major.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.major(class="form-select") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.skills.label(class="form-label") }}
+                            <div class="row skills-checkboxes">
+                                {% for subfield in form.skills %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        {{ subfield(class="form-check-input") }}
+                                        {{ subfield.label(class="form-check-label") }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.skills.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.skills.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.other_skills.label(class="form-label") }}
+                            {% if form.other_skills.errors %}
+                                {{ form.other_skills(class="form-control is-invalid", placeholder="Enter any additional skills, separated by commas") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.other_skills.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.other_skills(class="form-control", placeholder="Enter any additional skills, separated by commas") }}
+                            {% endif %}
+                            <div class="form-text">Add any skills not listed above, separated by commas.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.bio.label(class="form-label") }}
+                            {% if form.bio.errors %}
+                                {{ form.bio(class="form-control is-invalid", rows=4) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.bio.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.bio(class="form-control", rows=4, placeholder="Tell us about yourself, your interests, and what you're looking to collaborate on...") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

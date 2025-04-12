@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - {{ project.title }} - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2>Edit Project</h2>
+                    <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-outline-primary">Back to Project</a>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('edit_project', project_id=project.id) }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Project Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ project.title }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required>{{ project.description }}</textarea>
+                            <div class="form-text">Describe your project in detail. What are your goals? What are you trying to build?</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="required_skills" class="form-label">Required Skills</label>
+                            <input type="text" class="form-control" id="required_skills" name="required_skills" value="{{ project.required_skills }}" required>
+                            <div class="form-text">List skills separated by commas (e.g., Python, JavaScript, UI Design)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" value="{{ project.tags }}">
+                            <div class="form-text">Categories or keywords that describe your project, separated by commas (e.g., Mobile, Web, AI)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Project Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="active" {% if project.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if project.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_collaborators" class="form-label">Maximum Collaborators</label>
+                            <input type="number" class="form-control" id="max_collaborators" name="max_collaborators" value="{{ project.max_collaborators }}" min="1" max="20">
+                            <div class="form-text">Maximum number of people who can join your project</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

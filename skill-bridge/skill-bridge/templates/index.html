@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}SkillBridge - Find Collaborators{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section py-5 text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">Find Your Perfect Project Partner</h1>
+        <p class="lead mb-4">Connect with students across different majors to collaborate on exciting projects</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{{ url_for('search') }}" class="btn btn-outline-primary btn-lg">Explore Projects</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-people display-4 text-primary mb-3"></i>
+                    <h3>Find Collaborators</h3>
+                    <p class="card-text">Connect with students who have complementary skills and interests</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-lightbulb display-4 text-primary mb-3"></i>
+                    <h3>Share Projects</h3>
+                    <p class="card-text">Post your project ideas and find team members to bring them to life</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-diagram-3 display-4 text-primary mb-3"></i>
+                    <h3>Build Your Network</h3>
+                    <p class="card-text">Grow your professional network and gain valuable experience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="{{ url_for('search') }}" method="GET" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" name="q" placeholder="Search for skills, projects, or users...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="major">
+                        <option value="">All Majors</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Art">Art</option>
+                        <option value="Business">Business</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Projects Section -->
+<div class="container py-5">
+    <h2 class="mb-4">Featured Projects</h2>
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text">{{ project.description[:150] }}...</p>
+                    <div class="mb-3">
+                        {% for skill in project.required_skills.split(',') %}
+                        <span class="badge bg-secondary me-1">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">By {{ project.creator.username }}</small>
+                        <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recommendations Section (for logged-in users) -->
+{% if current_user.is_authenticated %}
+<div class="container py-5">
+    <h2 class="mb-4">Recommended for You</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Projects Matching Your Skills</h5>
+                </div>
+                <div class="card-body">
+                    {% for project in matching_projects[:3] %}
+                    <div class="mb-3">
+                        <h6>{{ project.title }}</h6>
+                        <p class="small text-muted">{{ project.description[:100] }}...</p>
+                        <div class="mb-2">
+                            {% for skill in project.required_skills.split(',')[:3] %}
+                            <span class="badge bg-secondary me-1">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">View Project</a>
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                    {% if not matching_projects %}
+                    <p class="text-muted">No matching projects found. Try adding more skills to your profile!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Potential Collaborators</h5>
+                </div>
+                <div class="card-body">
+                    {% for user in matching_users[:3] %}
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image }}" alt="{{ user.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary me-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-person text-white"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ user.username }}</h6>
+                                <small class="text-muted">{{ user.major }}</small>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            {% for skill in user.skills.split(',')[:3] %}
+                            <span class="badge bg-primary me-1">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ url_for('profile', username=user.username) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                    {% if not matching_users %}
+                    <p class="text-muted">No matching users found. Try adding more skills to your profile!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Call to Action -->
+<div class="container py-5 text-center">
+    <h2 class="mb-4">Ready to Start Collaborating?</h2>
+    <p class="lead mb-4">Join SkillBridge today and connect with talented students across different majors</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Create Your Account</a>
+</div>
+{% endblock %}
