@@ -67,34 +67,26 @@ By creating this centralized platform, SkillBridge aims to foster collaboration,
 
 ## Installation
 
-1. Clone the repository:
+1. Create a virtual environment:
 
    ```bash
-   git clone https://github.com/your-username/skill-bridge.git
-   cd skill-bridge
+   cd skill-bridge && python -m venv venv && source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-2. Create a virtual environment:
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
+2. Install dependencies:
 
    ```bash
    pip install -r skill-bridge/requirements.txt
    ```
 
-4. Run the application:
+3. Run the application:
 
    ```bash
    cd skill-bridge
    python main.py
    ```
 
-5. Access the application in your browser:
+4. Access the application in your browser:
 
    ```text
    http://localhost:5001
