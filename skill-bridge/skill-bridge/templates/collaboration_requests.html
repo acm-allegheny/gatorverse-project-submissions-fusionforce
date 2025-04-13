@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Collaboration Requests - SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Collaboration Requests</h2>
+
+    <ul class="nav nav-tabs mb-4" id="requestsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">
+                Received Requests
+                {% if received_requests %}
+                    <span class="badge rounded-pill bg-primary ms-1">{{ received_requests|selectattr('status', 'equalto', 'pending')|list|length }}</span>
+                {% endif %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab" aria-controls="sent" aria-selected="false">
+                Sent Requests
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="requestsContent">
+        <!-- Received requests tab -->
+        <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
+            {% if received_requests %}
+                <div class="row">
+                    {% for request in received_requests %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card {% if request.status == 'pending' %}border-warning{% elif request.status == 'accepted' %}border-success{% else %}border-secondary{% endif %}">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ request.sender.username }}</strong> wants to collaborate
+                                        <span class="badge {% if request.status == 'pending' %}bg-warning text-dark{% elif request.status == 'accepted' %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                                            {{ request.status|capitalize }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ request.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Project: {{ request.project.title }}</h5>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="{{ request.sender.profile_image }}" alt="{{ request.sender.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                        <div>
+                                            <p class="mb-0">{{ request.sender.username }}</p>
+                                            <small class="text-muted">{{ request.sender.major }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if request.message %}
+                                        <div class="card mb-3">
+                                            <div class="card-body py-2 px-3">
+                                                <p class="card-text mb-0"><em>"{{ request.message }}"</em></p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex gap-2 mt-3">
+                                        <a href="{{ url_for('profile', username=request.sender.username) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-person"></i> View Profile
+                                        </a>
+                                        <a href="{{ url_for('project_detail', project_id=request.project.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-info-circle"></i> View Project
+                                        </a>
+                                        
+                                        {% if request.status == 'pending' %}
+                                            <div class="ms-auto">
+                                                <a href="{{ url_for('handle_collaboration_request', request_id=request.id, action='accept') }}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-lg"></i> Accept
+                                                </a>
+                                                <a href="{{ url_for('handle_collaboration_request', request_id=request.id, action='reject') }}" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-x-lg"></i> Reject
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>You haven't received any collaboration requests.
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sent requests tab -->
+        <div class="tab-pane fade" id="sent" role="tabpanel" aria-labelledby="sent-tab">
+            {% if sent_requests %}
+                <div class="row">
+                    {% for request in sent_requests %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card {% if request.status == 'pending' %}border-warning{% elif request.status == 'accepted' %}border-success{% else %}border-secondary{% endif %}">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        Request to <strong>{{ request.project.title }}</strong>
+                                        <span class="badge {% if request.status == 'pending' %}bg-warning text-dark{% elif request.status == 'accepted' %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                                            {{ request.status|capitalize }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ request.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="{{ request.project.creator.profile_image }}" alt="{{ request.project.creator.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                        <div>
+                                            <p class="mb-0">Project Owner: {{ request.project.creator.username }}</p>
+                                            <small class="text-muted">{{ request.project.creator.major }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if request.message %}
+                                        <div class="card mb-3">
+                                            <div class="card-body py-2 px-3">
+                                                <p class="card-text mb-0"><em>"{{ request.message }}"</em></p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex gap-2 mt-3">
+                                        <a href="{{ url_for('profile', username=request.project.creator.username) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-person"></i> View Owner Profile
+                                        </a>
+                                        <a href="{{ url_for('project_detail', project_id=request.project.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-info-circle"></i> View Project
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>You haven't sent any collaboration requests.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

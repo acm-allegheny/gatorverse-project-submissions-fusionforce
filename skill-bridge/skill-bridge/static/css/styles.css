@@ -1,0 +1,31 @@
+/* Skill tags styling */
+.skill-tags-container {
+    margin-top: 8px;
+}
+
+.skill-tags-container .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.7rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 20px;
+    font-weight: normal;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.skill-tags-container .badge:hover {
+    background-color: #0b5ed7;
+}
+
+.skill-tags-container .badge i {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.skill-tags-container .badge i:hover {
+    color: #f8f9fa;
+} 

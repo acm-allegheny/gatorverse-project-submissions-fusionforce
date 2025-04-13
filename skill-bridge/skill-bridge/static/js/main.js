@@ -7,18 +7,59 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Skill tag input enhancement
-    const skillInputs = document.querySelectorAll('input[name="skills"], input[name="required_skills"]');
+    const skillInputs = document.querySelectorAll('input[name="skills"], input[name="required_skills"], input[name="tags"]');
     skillInputs.forEach(input => {
+        // Add a container for displaying the tags
+        const container = document.createElement('div');
+        container.className = 'skill-tags-container d-flex flex-wrap mt-2';
+        input.parentNode.insertBefore(container, input.nextSibling);
+
+        // Add tags from existing values when page loads
+        if (input.value) {
+            const tags = input.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            tags.forEach(tag => addTag(tag, container, input));
+        }
+
+        // Handle input events
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ',') {
                 e.preventDefault();
                 const value = this.value.trim();
                 if (value) {
-                    const tags = value.split(',').map(tag => tag.trim());
-                    this.value = tags.join(', ');
+                    addTag(value, container, input);
+                    this.value = '';
                 }
             }
         });
+
+        // Function to add a tag
+        function addTag(text, container, input) {
+            const tag = document.createElement('span');
+            tag.className = 'badge bg-primary me-2 mb-2 p-2';
+            tag.textContent = text;
+            
+            // Add remove button
+            const removeBtn = document.createElement('i');
+            removeBtn.className = 'bi bi-x-circle ms-1';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.addEventListener('click', function() {
+                container.removeChild(tag);
+                updateInputValue(container, input);
+            });
+            
+            tag.appendChild(removeBtn);
+            container.appendChild(tag);
+            updateInputValue(container, input);
+        }
+
+        // Function to update the hidden input value
+        function updateInputValue(container, input) {
+            const tags = Array.from(container.querySelectorAll('.badge')).map(tag => {
+                // Get only the text content, remove the "×" button text
+                return tag.textContent.replace('×', '').trim();
+            });
+            input.value = tags.join(', ');
+        }
     });
 
     // Project search functionality
@@ -60,13 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Collaboration request handling
-    const collaborateButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+    const collaborateButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-project-id]');
     collaborateButtons.forEach(button => {
         button.addEventListener('click', function() {
             const projectId = this.dataset.projectId;
             const modal = document.getElementById('collaborateModal');
-            if (modal) {
-                modal.querySelector('form').action = `/request_collaboration/${projectId}`;
+            if (modal && projectId) {
+                modal.querySelector('form').action = `/project/${projectId}/collaborate`;
             }
         });
     });

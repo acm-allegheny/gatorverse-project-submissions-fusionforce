@@ -102,14 +102,9 @@
                                     {% if current_user.id|string not in collaborator_ids %}
                                         <div class="d-flex flex-wrap gap-2">
                                             <!-- Request to collaborate -->
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#collaborateModal">
-                                                Request to Collaborate
+                                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#collaborateModal" data-project-id="{{ project.id }}">
+                                                <i class="bi bi-people-fill me-2"></i>Request to Collaborate
                                             </button>
-                                            
-                                            <!-- Simple join -->
-                                            <form action="{{ url_for('join_project', project_id=project.id) }}" method="POST" class="d-inline">
-                                                <button type="submit" class="btn btn-success">Join Project</button>
-                                            </form>
                                         </div>
                                     {% else %}
                                         <p class="text-success"><i class="bi bi-check-circle-fill"></i> You are a collaborator on this project</p>
