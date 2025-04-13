@@ -41,6 +41,15 @@
                             <i class="bi bi-person-circle me-1"></i>My Profile
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('collaboration_requests') }}">
+                            <i class="bi bi-people me-1"></i>Collaboration Requests
+                            {% set pending_requests = current_user.sent_collaboration_requests|selectattr('status', 'equalto', 'pending')|list|length %}
+                            {% if pending_requests > 0 %}
+                                <span class="badge rounded-pill bg-warning text-dark">{{ pending_requests }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
